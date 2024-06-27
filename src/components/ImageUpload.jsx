@@ -5,9 +5,21 @@ import { toast } from 'sonner';
 
 const ImageUpload = () => {
   const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setPreview(null);
+    }
   };
 
   const handleUpload = async () => {
@@ -38,6 +50,7 @@ const ImageUpload = () => {
   return (
     <div className="flex flex-col items-center space-y-4">
       <Input type="file" onChange={handleFileChange} />
+      {preview && <img src={preview} alt="Image Preview" className="w-64 h-64 object-cover" />}
       <Button onClick={handleUpload}>Upload Image</Button>
     </div>
   );
