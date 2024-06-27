@@ -34,6 +34,8 @@ const ImageUpload = () => {
       return;
     }
 
+    setUploadProgress(0); // Reset progress bar
+
     const formData = new FormData();
     formData.append('image', file);
 
@@ -54,10 +56,6 @@ const ImageUpload = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        },
       });
 
       if (response.ok) {
