@@ -32,7 +32,11 @@ const ImageUpload = () => {
       const base64Content = reader.result;
       localStorage.setItem('uploadedImage', base64Content);
       setUploadedImageUrl(base64Content);
-      alert('Image uploaded successfully!');
+      navigator.clipboard.writeText(base64Content).then(() => {
+        alert('Image uploaded and Base64 string copied to clipboard!');
+      }).catch(err => {
+        alert('Failed to copy Base64 string to clipboard.');
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -40,7 +44,7 @@ const ImageUpload = () => {
   return (
     <div className="container">
       <h1>Upload Your Image</h1>
-      <form id="uploadForm">
+      <form id="uploadForm" onSubmit={handleSubmit}>
         <input type="file" id="fileInput" onChange={handleFileChange} />
         {previewSrc && <img id="preview" src={previewSrc} alt="Image Preview" />}
         <button type="submit">Upload Image</button>
