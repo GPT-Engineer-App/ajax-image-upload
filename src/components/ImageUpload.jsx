@@ -6,6 +6,9 @@ import { toast } from 'sonner';
 const ImageUpload = () => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [repoName, setRepoName] = useState('');
+  const [ownerName, setOwnerName] = useState('');
+  const [accessToken, setAccessToken] = useState('');
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -23,18 +26,31 @@ const ImageUpload = () => {
   };
 
   const handleUpload = async () => {
-    if (!file) {
-      toast.error('Please select a file first.');
+    if (!file || !repoName || !ownerName || !accessToken) {
+      toast.error('Please fill in all fields and select a file.');
       return;
     }
 
     const formData = new FormData();
     formData.append('image', file);
 
+    const fileName = file.name;
+    const fileContent = await file.text();
+    const base64Content = btoa(fileContent);
+
+    const data = {
+      message: `Upload image ${fileName}`,
+      content: base64Content,
+    };
+
     try {
-      const response = await fetch('/upload', {
-        method: 'POST',
-        body: formData,
+      const response = await fetch(`https://api.github.com/repos/${ownerName}/${repoName}/contents/${fileName}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
@@ -49,6 +65,9 @@ const ImageUpload = () => {
 
   return (
     <div className="flex flex-col items-center space-y-4">
+      <Input type="text" placeholder="Repository Name" value={repoName} onChange={(e) => setRepoName(e.target.value)} />
+      <Input type="text" placeholder="Owner Name" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} />
+      <Input type="password" placeholder="Personal Access Token" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} />
       <Input type="file" onChange={handleFileChange} />
       {preview && <img src={preview} alt="Image Preview" className="w-64 h-64 object-cover" />}
       <Button onClick={handleUpload}>Upload Image</Button>
